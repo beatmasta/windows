@@ -1,0 +1,59 @@
+.jquery-window {
+    background-color: #BEBEBE;
+    border-radius: 7px;
+}
+
+.jquery-window .window-title-bar {
+    cursor: url("images/move.png") 12 12, auto;
+    height: 24px;
+    width: 100%;
+    background-color: #888888;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+}
+
+.jquery-window .window-title-bar .window-title {
+    display: block;
+    float: left;
+    padding: 2px 10px;
+    font-family: Verdana, Courier;
+    font-size: 13px;
+    color: #FEFEFE;
+}
+
+.jquery-window.dragging,
+.jquery-window.dragging .window-title-bar {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: url("images/move.png") 12 12, auto;
+}
+
+.jquery-window .window-title-bar .action-button {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    float: right;
+    margin-top: 4px;
+    margin-right: 4px;
+}
+
+.jquery-window .window-title-bar .button-maximize {
+    background: url("images/win_maximize.png") no-repeat;
+}
+
+.jquery-window.maximized .window-title-bar .button-maximize {
+    background: url("images/win_restore.png") no-repeat;
+}
+
+.jquery-window .window-title-bar .button-minimize {
+    background: url("images/win_minimize.png") no-repeat;
+}
+
+.jquery-window .window-title-bar .button-close {
+    margin-right: 8px;
+    background: url("images/win_close.png") no-repeat;
+}

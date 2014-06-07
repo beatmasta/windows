@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jQuery Windows</title>
+    <style type="text/css">
+        #boundary-parent {
+            margin: 10px auto;
+            width: 800px;
+            height: 800px;
+            background-color: #FEFEFE;
+            border: 1px dashed #444444;
+            border-radius: 5px;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="jquery.windows.css" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.windows.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#boundary-parent").windows({
+                title: "My new nice window",
+                url: "http://google.com",
+                width: 600,
+                height: 400
+            });
+            $("#boundary-parent").windows({
+                title: "My new nice window 2",
+                url: "http://google.com",
+                top: 450,
+                width: 600,
+                height: 400
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="boundary-parent"></div>
+</body>
+</html>
