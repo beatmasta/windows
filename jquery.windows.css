@@ -1,6 +1,7 @@
 .jquery-window {
     background-color: #BEBEBE;
     border-radius: 7px;
+    box-shadow: 1px 2px 10px 0 #777777;
 }
 
 .jquery-window .window-title-bar {
@@ -56,4 +57,12 @@
 .jquery-window .window-title-bar .button-close {
     margin-right: 8px;
     background: url("images/win_close.png") no-repeat;
+}
+
+.jquery-window .window-content {
+    padding: 10px;
+}
+
+.jquery-window .window-content iframe {
+    border: 0;
 }

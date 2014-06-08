@@ -6,7 +6,7 @@
         #boundary-parent {
             margin: 10px auto;
             width: 800px;
-            height: 800px;
+            height: 1200px;
             background-color: #FEFEFE;
             border: 1px dashed #444444;
             border-radius: 5px;
@@ -19,16 +19,21 @@
         $(document).ready(function() {
             $("#boundary-parent").windows({
                 title: "My new nice window",
-                url: "http://google.com",
+                url: "iframe-include.html",
                 width: 600,
                 height: 400
             });
             $("#boundary-parent").windows({
-                title: "My new nice window 2",
-                url: "http://google.com",
+                title: "I only have close button",
+                content: "<div>this is a test html window</div>",
                 top: 450,
                 width: 600,
-                height: 400
+                height: 400,
+                buttons: {
+                    close: true,
+                    minimize: false,
+                    maximize: false
+                }
             });
         });
     </script>

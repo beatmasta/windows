@@ -15,8 +15,8 @@
 
         windows.defaults = {
             title: "New window",
-            url: "http://www.google.com/",
-            content: "",
+            url: false,
+            content: false,
             left: 0,
             top: 0,
             width: 400,
@@ -29,6 +29,11 @@
         };
 
         windows.__init__ = function(opts, elem) {
+
+            if ( ! opts.url && ! opts.content ) {
+                console.log("jQuery.Window: Either 'url' or 'content' configuration param should be specified for window to work");
+                return;
+            }
             
             var el = elem ? elem : $("body");
             var newWindowId = 1;
@@ -73,9 +78,57 @@
             }
 
             // append the content area
-            $("<div />").addClass("window-content").appendTo(newWindow);
+            var contentWrap = $("<div />").addClass("window-content")
+                                          .css("position", "relative")
+                                          .appendTo(newWindow);
 
             windows.bindActions(opts, elem);
+            
+            if ( opts.url ) {
+                $("<iframe />").attr({
+                    src: opts.url,
+                    frameborder: 0,
+                    width: opts.width,
+                    height: opts.height - titleBar.outerHeight()
+                }).appendTo(contentWrap);
+            }
+            else if ( opts.content ) {
+                contentWrap.append(opts.content);
+            }
+
+        };
+
+        windows.iframeFix = function(enable, obj) {
+
+            if ( enable ) {
+                
+                $("iframe").each(function() {
+                    
+                    if ( this == obj ) return;
+
+                    $(this).css("position", "relative");
+
+                    $("<div />").css({
+                        left: $(this).get(0).offsetLeft,
+                        top: $(this).get(0).offsetTop,
+                        width: $(this).outerWidth(),
+                        height: $(this).outerHeight(),
+                        position: "absolute",
+                        backgroundColor: "#FFFFFF",
+                        opacity: 0.001,
+                        zIndex: 10000
+                    })
+                    .addClass("jquery-window-iframe-fix")
+                    .appendTo($(this).parent());
+
+                });
+
+            } else {
+
+                $("iframe").css("position", "static");
+                $(".jquery-window-iframe-fix").remove();
+
+            }
 
         };
 
@@ -85,6 +138,7 @@
             
             $(document).on("mousedown", ".jquery-window .window-title-bar", function(e) {
                 e.preventDefault();
+                windows.iframeFix(true);
                 dragging = $(this).parent();
                 dragging.addClass("dragging");
                 $(this).data("offsetX", $(this).offset().left);
@@ -96,11 +150,19 @@
             
             $(document).on("mouseup", ".jquery-window", function(e) {
                 e.preventDefault();
-                dragging.removeClass("dragging");
-                dragging = false;
+                windows.iframeFix(false);
+                if ( dragging ) {
+                    dragging.removeClass("dragging");
+                    dragging = false;
+                }
+                $(".jquery-window").each(function() {
+                    $(this).css("z-index", $(this).attr("data-id"));
+                });
+                $(this).css("z-index", 999999);
+                windows.iframeFix(true, $(this).find("iframe").get(0));
             });
             
-            $(document).on("click", ".jquery-window", function(e) {
+            $(document).on("mousedown", ".jquery-window", function(e) {
                 e.preventDefault();
                 $(".jquery-window").each(function() {
                     $(this).css("z-index", $(this).attr("data-id"));
