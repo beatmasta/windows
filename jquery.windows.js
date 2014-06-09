@@ -12,6 +12,7 @@
     $.fn.windows = function(options) {
         
         var windows = $.fn.windows;
+        var bodyBound = false;
 
         windows.defaults = {
             title: "New window",
@@ -21,7 +22,19 @@
             top: 0,
             width: 400,
             height: 200,
+            maximizeSpeed: 1000,
+            restoreSpeed: 1000,
+            minimizeSpeed: 1000,
+            unMinimizeSpeed: 1000,
             closeSpeed: "slow",
+            beforeMaximize: function() { return true; },
+            afterMaximize: function() {},
+            beforeRestore: function() { return true; },
+            afterRestore: function() {},
+            beforeMinimize: function() { return true; },
+            afterMinimize: function() {},
+            beforeUnMinimize: function() { return true; },
+            afterUnMinimize: function() {},
             beforeClose: function() { return true; },
             afterClose: function() {},
             buttons: {
@@ -30,8 +43,6 @@
                 close: true
             }
         };
-
-        var bodyBound = false;
 
         windows.__init__ = function(opts, elem) {
 
@@ -207,6 +218,81 @@
                 });
 
             }
+
+            win.find(".button-maximize").on("click", function(e) {
+                e.preventDefault();
+                var currentWin = $(this).parents(".jquery-window");
+                if ( currentWin.hasClass("maximized") ) {
+                    if ( true === opts.beforeRestore() ) {
+                        currentWin.animate({
+                            left: currentWin.attr("data-left"),
+                            top: currentWin.attr("data-top"),
+                            width: currentWin.attr("data-width"),
+                            height: currentWin.attr("data-height"),
+                        }, opts.restoreSpeed, function() {
+                            currentWin.removeClass("maximized");
+                            opts.afterRestore();
+                        }).attr({
+                            "data-left": false,
+                            "data-top": false,
+                            "data-width": false,
+                            "data-height": false
+                        });
+                    }
+                } else {
+                    if ( true === opts.beforeMaximize() ) {
+                        currentWin.attr({
+                            "data-left": currentWin.get(0).offsetLeft,
+                            "data-top": currentWin.get(0).offsetTop,
+                            "data-width": currentWin.outerWidth(),
+                            "data-height": currentWin.outerHeight()
+                        }).animate({
+                            top: 0,
+                            left: 0,
+                            width: elem.outerWidth(),
+                            height: elem.outerHeight()
+                        }, opts.maximizeSpeed, function() {
+                            currentWin.addClass("maximized");
+                            opts.afterMaximize();
+                        });
+                    }
+                }
+            });
+
+            win.find(".button-minimize").on("click", function(e) {
+                e.preventDefault();
+                var currentWin = $(this).parents(".jquery-window");
+                if ( currentWin.hasClass("minimized") ) {
+                    if ( true === opts.beforeUnMinimize() ) {
+                        currentWin.animate({
+                            width: currentWin.attr("data-width"),
+                            height: currentWin.attr("data-height"),
+                        }, opts.unMinimizeSpeed, function() {
+                            currentWin.css("overflow", currentWin.attr("data-overflow"))
+                                      .removeClass("minimized");
+                            opts.afterUnMinimize();
+                        }).attr({
+                            "data-width": false,
+                            "data-height": false
+                        });
+                    }
+                } else {
+                    if ( true === opts.beforeMinimize() ) {
+                        currentWin.attr({
+                            "data-width": currentWin.outerWidth(),
+                            "data-height": currentWin.outerHeight()
+                        }).animate({
+                            width: currentWin.find(".window-title").outerWidth(true),
+                            height: currentWin.find(".window-title-bar").outerHeight(true)
+                        }, opts.minimizeSpeed, function() {
+                            currentWin.attr("data-overflow", currentWin.css("overflow"))
+                                      .css("overflow", "hidden")
+                                      .addClass("minimized");
+                            opts.afterMinimize();
+                        });
+                    }
+                }
+            });
 
             win.find(".button-close").on("click", function(e) {
                 e.preventDefault();
