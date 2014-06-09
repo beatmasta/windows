@@ -154,6 +154,7 @@
             
             win.find(".window-title-bar").on("mousedown", function(e) {
                 e.preventDefault();
+                if ( e.which != 1 && ! (opts.middleClickDrag && e.which == 2) ) return;
                 windows.iframeFix(true);
                 dragging = $(this).parent();
                 dragging.addClass("dragging");
