@@ -21,7 +21,10 @@
                 title: "My new nice window",
                 url: "iframe-include.html",
                 width: 600,
-                height: 400
+                height: 400,
+                beforeClose: function() {
+                    return confirm("Are you sure?");
+                }
             });
             $("#boundary-parent").windows({
                 title: "I only have close button",

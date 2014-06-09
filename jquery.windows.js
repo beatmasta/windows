@@ -21,12 +21,17 @@
             top: 0,
             width: 400,
             height: 200,
+            closeSpeed: "slow",
+            beforeClose: function() { return true; },
+            afterClose: function() {},
             buttons: {
                 minimize: true,
                 maximize: true,
                 close: true
             }
         };
+
+        var bodyBound = false;
 
         windows.__init__ = function(opts, elem) {
 
@@ -82,7 +87,7 @@
                                           .css("position", "relative")
                                           .appendTo(newWindow);
 
-            windows.bindActions(opts, elem);
+            windows.bindActions(opts, newWindow, elem);
             
             if ( opts.url ) {
                 $("<iframe />").attr({
@@ -132,11 +137,11 @@
 
         };
 
-        windows.bindActions = function(opts, elem) {
+        windows.bindActions = function(opts, win, elem) {
             
             var dragging = false;
             
-            $(document).on("mousedown", ".jquery-window .window-title-bar", function(e) {
+            win.find(".window-title-bar").on("mousedown", function(e) {
                 e.preventDefault();
                 windows.iframeFix(true);
                 dragging = $(this).parent();
@@ -148,7 +153,7 @@
                 dragging.data("handle", $(this));
             });
             
-            $(document).on("mouseup", ".jquery-window", function(e) {
+            win.on("mouseup", function(e) {
                 e.preventDefault();
                 windows.iframeFix(false);
                 if ( dragging ) {
@@ -162,7 +167,7 @@
                 windows.iframeFix(true, $(this).find("iframe").get(0));
             });
             
-            $(document).on("mousedown", ".jquery-window", function(e) {
+            win.on("mousedown", function(e) {
                 e.preventDefault();
                 $(".jquery-window").each(function() {
                     $(this).css("z-index", $(this).attr("data-id"));
@@ -170,18 +175,18 @@
                 $(this).css("z-index", 999999);
             });
             
-            var windowElem, dragHandle, boundaryLimit, left, top;
-            $(document).on("mousemove", "body", function(e) {
+            if ( ! bodyBound ) {
+
+                var dragHandle, boundaryLimit, left, top;
+
+                $(document).on("mousemove", "body", function(e) {
                 
-                // delay 10 sec to prevent lags
-                window.setTimeout(function() {
+                    bodyBound = true;
 
                     if ( dragging ) {
-                    
+                
                         dragHandle = dragging.data("handle");
-                        
-                        windowElem = dragHandle.parents(".jquery-window");
-                        
+                    
                         left = parseInt(dragHandle.data("offsetX")) + e.screenX - parseInt(dragHandle.data("screenX")) - elem.offset().left;
                         top = parseInt(dragHandle.data("offsetY")) + e.screenY - parseInt(dragHandle.data("screenY")) - elem.offset().top;
 
@@ -190,17 +195,27 @@
                         top = top < 0 ? 0 : top;
 
                         // check MAX boundary limit
-                        boundaryLimit = elem.outerWidth() - windowElem.outerWidth();
+                        boundaryLimit = elem.outerWidth() - win.outerWidth();
                         left = left > boundaryLimit ? boundaryLimit : left;
-                        boundaryLimit = elem.outerHeight() - windowElem.outerHeight();
+                        boundaryLimit = elem.outerHeight() - win.outerHeight();
                         top = top > boundaryLimit ? boundaryLimit : top;
 
-                        windowElem.css({ left: left, top: top });
+                        win.css({ left: left, top: top });
 
                     }
 
-                }, 10);
+                });
 
+            }
+
+            win.find(".button-close").on("click", function(e) {
+                e.preventDefault();
+                if ( true === opts.beforeClose() ) {
+                    $(this).parents(".jquery-window").fadeOut(opts.closeSpeed, function() {
+                        $(this).remove();
+                        opts.afterClose();
+                    });
+                }
             });
 
         };
