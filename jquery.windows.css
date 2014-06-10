@@ -54,6 +54,10 @@
     background: url("images/win_minimize.png") no-repeat;
 }
 
+.jquery-window .window-title-bar .button-unminimize {
+    background: url("images/win_restore.png") no-repeat;
+}
+
 .jquery-window .window-title-bar .button-close {
     margin-right: 8px;
     background: url("images/win_close.png") no-repeat;
