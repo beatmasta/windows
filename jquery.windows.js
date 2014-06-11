@@ -267,6 +267,8 @@
                     currentWin.attr("data-overflow", currentWin.css("overflow"))
                               .css("overflow", "hidden")
                     currentWin.attr({
+                        "data-left": currentWin.get(0).offsetLeft,
+                        "data-top": currentWin.get(0).offsetTop,
                         "data-width": currentWin.outerWidth(),
                         "data-height": currentWin.outerHeight()
                     }).animate({
@@ -287,11 +289,13 @@
                 if ( opts.beforeUnMinimize() ) {
                     currentWin.find(".button-unminimize").remove();
                     currentWin.animate({
-                        top: 0,
-                        left: 0,
+                        left: currentWin.attr("data-left"),
+                        top: currentWin.attr("data-top"),
                         width: currentWin.attr("data-width"),
                         height: currentWin.attr("data-height")
                     }, opts.unMinimizeSpeed, opts.afterUnMinimize).attr({
+                        "data-left": false,
+                        "data-top": false,
                         "data-width": false,
                         "data-height": false
                     });
