@@ -74,8 +74,10 @@
                                             height: opts.height,
                                             zIndex: newWindowId
                                         })
-                                        .appendTo( el.css("position", "relative") ); // set parent's position and append to it
-            
+                                        .appendTo( el.css("position", "relative") ) // set parent's position and append to it
+                                        .attr("data-boundary", el.selector)
+                                        .data("opts", opts); // set options to reuse later in plugin methods
+
             // add title bar
             var titleBar = $("<div />").addClass("window-title-bar").appendTo(newWindow);
 
@@ -111,6 +113,8 @@
             else if ( opts.content ) {
                 contentWrap.append(opts.content);
             }
+
+            return newWindow;
 
         };
 
@@ -222,102 +226,158 @@
 
             win.find(".button-maximize").on("click", function(e) {
                 e.preventDefault();
-                var currentWin = $(this).parents(".jquery-window");
-                if ( currentWin.hasClass("maximized") ) {
-                    if ( opts.beforeRestore() ) {
-                        currentWin.animate({
-                            left: currentWin.attr("data-left"),
-                            top: currentWin.attr("data-top"),
-                            width: currentWin.attr("data-width"),
-                            height: currentWin.attr("data-height"),
-                        }, opts.restoreSpeed, function() {
-                            currentWin.removeClass("maximized");
-                            opts.afterRestore();
-                        }).attr({
-                            "data-left": false,
-                            "data-top": false,
-                            "data-width": false,
-                            "data-height": false
-                        });
-                    }
-                } else {
-                    if ( opts.beforeMaximize() ) {
-                        currentWin.attr({
-                            "data-left": currentWin.get(0).offsetLeft,
-                            "data-top": currentWin.get(0).offsetTop,
-                            "data-width": currentWin.outerWidth(),
-                            "data-height": currentWin.outerHeight()
-                        }).animate({
-                            top: 0,
-                            left: 0,
-                            width: elem.outerWidth(),
-                            height: elem.outerHeight()
-                        }, opts.maximizeSpeed, function() {
-                            currentWin.addClass("maximized");
-                            opts.afterMaximize();
-                        });
-                    }
-                }
+                $.windows.maximize( $(this).parents(".jquery-window") );
             });
 
             win.find(".button-minimize").on("click", function(e) {
                 e.preventDefault();
-                var currentWin = $(this).parents(".jquery-window");
-                if ( opts.beforeMinimize() ) {
-                    currentWin.attr("data-overflow", currentWin.css("overflow"))
-                              .css("overflow", "hidden")
+                $.windows.minimize( $(this).parents(".jquery-window") );
+            });
+
+            win.on("click", ".button-unminimize", function(e) {
+                e.preventDefault();
+                $.windows.unminimize( $(this).parents(".jquery-window") );
+            });
+
+            win.find(".button-close").on("click", function(e) {
+                e.preventDefault();
+                $.windows.close( $(this).parents(".jquery-window") );
+            });
+
+        };
+
+        return windows.__init__( $.extend({}, windows.defaults, options), $(this) );
+
+    };
+
+    $.windows = {
+
+        minimize: function(currentWin, options) {
+
+            options = ( ! options && typeof currentWin === "object" ? currentWin : options );
+            var dataOpts = currentWin.data("opts");
+            var opts = options ? $.extend({}, dataOpts, options) : dataOpts;
+
+            if ( opts.beforeMinimize.call(currentWin) ) {
+
+                currentWin.attr("data-overflow", currentWin.css("overflow"))
+                          .css("overflow", "hidden");
+
+                currentWin.attr({
+                    "data-left": currentWin.get(0).offsetLeft,
+                    "data-top": currentWin.get(0).offsetTop,
+                    "data-width": currentWin.outerWidth(),
+                    "data-height": currentWin.outerHeight()
+                }).animate({
+                    width: currentWin.find(".window-title").outerWidth(true) + 24,
+                    height: currentWin.find(".window-title-bar").outerHeight(true)
+                }, opts.minimizeSpeed, function() {
+
+                    currentWin.addClass("minimized");
+                    $("<a />").addClass("action-button button-unminimize")
+                              .insertAfter( currentWin.find(".window-title") );
+                    opts.afterMinimize.call(currentWin);
+
+                });
+
+            }
+
+        },
+
+        unminimize: function(currentWin, options) {
+
+            options = ( ! options && typeof currentWin === "object" ? currentWin : options );
+            var dataOpts = currentWin.data("opts");
+            var opts = options ? $.extend({}, dataOpts, options) : dataOpts;
+
+            if ( opts.beforeUnMinimize.call(currentWin) ) {
+
+                currentWin.find(".button-unminimize").remove();
+                currentWin.animate({
+                    left: currentWin.attr("data-left"),
+                    top: currentWin.attr("data-top"),
+                    width: currentWin.attr("data-width"),
+                    height: currentWin.attr("data-height")
+                }, opts.unMinimizeSpeed, function() {
+                    currentWin.removeClass("minimized");
+                    opts.afterUnMinimize.call(currentWin)
+                }).attr({
+                    "data-left": false,
+                    "data-top": false,
+                    "data-width": false,
+                    "data-height": false
+                });
+
+            }
+
+        },
+
+        maximize: function(currentWin, options) {
+
+            options = ( ! options && typeof currentWin === "object" ? currentWin : options );
+            var dataOpts = currentWin.data("opts");
+            var opts = options ? $.extend({}, dataOpts, options) : dataOpts;
+
+            if ( currentWin.hasClass("maximized") ) {
+
+                if ( opts.beforeRestore.call(currentWin) ) {
+
+                    currentWin.animate({
+                        left: currentWin.attr("data-left"),
+                        top: currentWin.attr("data-top"),
+                        width: currentWin.attr("data-width"),
+                        height: currentWin.attr("data-height")
+                    }, opts.restoreSpeed, function() {
+                        currentWin.removeClass("maximized");
+                        opts.afterRestore.call(currentWin);
+                    }).attr({
+                        "data-left": false,
+                        "data-top": false,
+                        "data-width": false,
+                        "data-height": false
+                    });
+
+                }
+
+            } else {
+
+                var boundary = $( currentWin.attr("data-boundary") );
+
+                if ( opts.beforeMaximize.call(currentWin) ) {
                     currentWin.attr({
                         "data-left": currentWin.get(0).offsetLeft,
                         "data-top": currentWin.get(0).offsetTop,
                         "data-width": currentWin.outerWidth(),
                         "data-height": currentWin.outerHeight()
                     }).animate({
-                        width: currentWin.find(".window-title").outerWidth(true) + 24,
-                        height: currentWin.find(".window-title-bar").outerHeight(true)
-                    }, opts.minimizeSpeed, function() {
-                        currentWin.addClass("minimized");
-                        $("<a />").addClass("action-button button-unminimize")
-                                  .insertAfter( currentWin.find(".window-title") );
-                        opts.afterMinimize();
+                        top: 0,
+                        left: 0,
+                        width: boundary.outerWidth(),
+                        height: boundary.outerHeight()
+                    }, opts.maximizeSpeed, function() {
+                        currentWin.addClass("maximized");
+                        opts.afterMaximize.call(currentWin);
                     });
                 }
-            });
 
-            win.on("click", ".button-unminimize", function(e) {
-                e.preventDefault();
-                var currentWin = $(this).parents(".jquery-window");
-                if ( opts.beforeUnMinimize() ) {
-                    currentWin.find(".button-unminimize").remove();
-                    currentWin.animate({
-                        left: currentWin.attr("data-left"),
-                        top: currentWin.attr("data-top"),
-                        width: currentWin.attr("data-width"),
-                        height: currentWin.attr("data-height")
-                    }, opts.unMinimizeSpeed, opts.afterUnMinimize).attr({
-                        "data-left": false,
-                        "data-top": false,
-                        "data-width": false,
-                        "data-height": false
-                    });
-                }
-            });
+            }
 
-            win.find(".button-close").on("click", function(e) {
-                e.preventDefault();
-                if ( opts.beforeClose() ) {
-                    $(this).parents(".jquery-window").fadeOut(opts.closeSpeed, function() {
-                        $(this).remove();
-                        opts.afterClose();
-                    });
-                }
-            });
+        },
 
-        };
+        close: function(currentWin, options) {
 
-        return this.each(function() {
-            var opts = $.extend({}, windows.defaults, options);
-            windows.__init__(opts, $(this));
-        });
+            options = ( ! options && typeof currentWin === "object" ? currentWin : options );
+            var dataOpts = currentWin.data("opts");
+            var opts = options ? $.extend({}, dataOpts, options) : dataOpts;
+
+            if ( opts.beforeClose.call(currentWin) ) {
+                currentWin.fadeOut(opts.closeSpeed, function() {
+                    $(this).remove();
+                    opts.afterClose.call(currentWin);
+                });
+            }
+
+        }
 
     };
 
