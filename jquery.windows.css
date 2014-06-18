@@ -5,7 +5,7 @@
 }
 
 .jquery-window .window-title-bar {
-    cursor: url("images/move.png") 12 12, auto;
+    cursor: url("/images/move.png") 12 12, auto;
     height: 24px;
     width: 100%;
     background-color: #888888;
@@ -30,7 +30,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    cursor: url("images/move.png") 12 12, auto;
+    cursor: url("/images/move.png") 12 12, auto;
 }
 
 .jquery-window .window-title-bar .action-button {
@@ -43,24 +43,27 @@
 }
 
 .jquery-window .window-title-bar .button-maximize {
-    background: url("images/win_maximize.png") no-repeat;
+    background: url("/images/win_maximize.png") no-repeat;
 }
 
 .jquery-window.maximized .window-title-bar .button-maximize {
-    background: url("images/win_restore.png") no-repeat;
+    background: url("/images/win_restore.png") no-repeat;
 }
 
 .jquery-window .window-title-bar .button-minimize {
-    background: url("images/win_minimize.png") no-repeat;
+    background: url("/images/win_minimize.png") no-repeat;
 }
 
 .jquery-window .window-title-bar .button-unminimize {
-    background: url("images/win_restore.png") no-repeat;
+    background: url("/images/win_restore.png") no-repeat;
 }
 
 .jquery-window .window-title-bar .button-close {
+    background: url("/images/win_close.png") no-repeat;
+}
+
+.jquery-window .window-title-bar .action-button:nth-child(2) {
     margin-right: 8px;
-    background: url("images/win_close.png") no-repeat;
 }
 
 .jquery-window .window-content {
