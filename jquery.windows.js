@@ -27,6 +27,7 @@
             minimizeSpeed: 1000,
             unMinimizeSpeed: 1000,
             closeSpeed: "slow",
+            onLoad: function() {},
             beforeMaximize: function() { return true; },
             afterMaximize: function() {},
             beforeRestore: function() { return true; },
@@ -113,6 +114,8 @@
             else if ( opts.content ) {
                 contentWrap.append(opts.content);
             }
+
+            opts.onLoad.call(this, newWindow);
 
             return newWindow;
 
@@ -263,13 +266,20 @@
                 currentWin.attr("data-overflow", currentWin.css("overflow"))
                           .css("overflow", "hidden");
 
+                var windowActionsWidth = 0;
+                var windowTitle = currentWin.find(".window-title");
+
+                currentWin.find(".window-title-bar").children().not(windowTitle).each(function() {
+                    windowActionsWidth += $(this).outerWidth(true);
+                });
+
                 currentWin.attr({
                     "data-left": currentWin.get(0).offsetLeft,
                     "data-top": currentWin.get(0).offsetTop,
                     "data-width": currentWin.outerWidth(),
                     "data-height": currentWin.outerHeight()
                 }).animate({
-                    width: currentWin.find(".window-title").outerWidth(true) + 24,
+                    width: windowTitle.outerWidth(true) + windowActionsWidth + 24,
                     height: currentWin.find(".window-title-bar").outerHeight(true)
                 }, opts.minimizeSpeed, function() {
 
