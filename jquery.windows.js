@@ -139,7 +139,7 @@
                         position: "absolute",
                         backgroundColor: "#FFFFFF",
                         opacity: 0.001,
-                        zIndex: 10000
+                        zIndex: 1000
                     })
                     .addClass("jquery-window-iframe-fix")
                     .appendTo($(this).parent());
@@ -174,6 +174,7 @@
             
             win.on("mouseup", function(e) {
                 e.preventDefault();
+                var windowCount = $(".jquery-window").length;
                 windows.iframeFix(false);
                 if ( dragging ) {
                     dragging.removeClass("dragging");
@@ -182,16 +183,17 @@
                 $(".jquery-window").each(function() {
                     $(this).css("z-index", $(this).attr("data-id"));
                 });
-                $(this).css("z-index", 999999);
+                $(this).css("z-index", windowCount + 1);
                 windows.iframeFix(true, $(this).find("iframe").get(0));
             });
             
             win.on("mousedown", function(e) {
                 e.preventDefault();
+                var windowCount = $(".jquery-window").length;
                 $(".jquery-window").each(function() {
                     $(this).css("z-index", $(this).attr("data-id"));
                 });
-                $(this).css("z-index", 999999);
+                $(this).css("z-index", windowCount + 1);
             });
             
             if ( ! bodyBound ) {
