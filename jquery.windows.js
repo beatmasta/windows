@@ -173,7 +173,6 @@
             });
             
             win.on("mouseup", function(e) {
-                e.preventDefault();
                 var windowCount = $(".jquery-window").length;
                 windows.iframeFix(false);
                 if ( dragging ) {
@@ -188,7 +187,6 @@
             });
             
             win.on("mousedown", function(e) {
-                e.preventDefault();
                 var windowCount = $(".jquery-window").length;
                 $(".jquery-window").each(function() {
                     $(this).css("z-index", $(this).attr("data-id"));
